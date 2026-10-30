@@ -1,0 +1,62 @@
+# ============================================================================
+#  application.yml —— 全局配置文件
+#  注意：YAML 对缩进极其敏感，必须用「空格」缩进，绝对不能用 Tab，
+#       同一层级的冒号必须对齐，否则启动直接报 YAML 解析错误。
+# ============================================================================
+
+server:
+  # 服务端口。被占用了就改成 8081、8082 试试
+  port: 8080
+
+spring:
+  application:
+    name: springboot-training-scaffold
+
+  # --------------------------------------------------------------------------
+  #  数据库连接（⚠️ 这是你唯一需要自己改的地方）
+  # --------------------------------------------------------------------------
+  datasource:
+    # MySQL 8 的驱动类名，固定写法（老教程里的 com.mysql.jdbc.Driver 已废弃）
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+    # 连接地址，各参数含义：
+    #   lab_training      库名，要和 sql/init.sql 里建的一致
+    #   useUnicode/characterEncoding  防止中文乱码
+    #   serverTimezone    时区，不写会报时区错误
+    #   useSSL=false      本地开发不需要 SSL，关掉避免警告
+    #   allowPublicKeyRetrieval=true  MySQL 8 默认加密方式需要的参数
+    url: jdbc:mysql://localhost:3306/lab_training?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+
+    # TODO ① 改成你自己的 MySQL 账号（一般是 root）
+    username:
+    # TODO ② 改成你自己的 MySQL 密码
+    password:
+
+# ----------------------------------------------------------------------------
+#  MyBatis 配置
+# ----------------------------------------------------------------------------
+mybatis:
+  # XML 映射文件的位置。classpath 指的就是 src/main/resources 目录
+  # 所以你的 XML 必须放在 src/main/resources/mapper/ 下面
+  mapper-locations: classpath:mapper/*.xml
+
+  # 实体类别名包。配了之后 XML 里的 type 可以直接写 Department，不用写全类名
+  type-aliases-package: com.lab.training.entity
+
+  configuration:
+    # 开启驼峰映射：数据库的 create_time 自动对应 Java 的 createTime
+    # 关掉这个，你会发现查出来的对象里 createTime 永远是 null
+    map-underscore-to-camel-case: true
+
+    # 把执行的 SQL 和参数打印到控制台。
+    # 这是调试最强的手段：看到控制台打印的 SQL，你才知道 MyBatis 到底执行了什么。
+    # 上线前记得删掉这行（会有性能损耗，也可能泄露敏感信息）
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+# ----------------------------------------------------------------------------
+#  日志级别
+# ----------------------------------------------------------------------------
+logging:
+  level:
+    # 我们自己的包用 debug，能看到 Service 里打的日志
+    com.lab.training: debug

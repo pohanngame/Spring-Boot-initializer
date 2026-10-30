@@ -1,0 +1,25 @@
+# 构建产物（mvn compile / spring-boot:run 会自动生成，绝不能提交）
+target/
+
+# IDEA
+.idea/
+*.iml
+*.ipr
+*.iws
+
+# Eclipse / VS Code
+.classpath
+.project
+.settings/
+.vscode/
+
+# 日志与临时文件
+*.log
+logs/
+
+# 操作系统
+.DS_Store
+Thumbs.db
+
+# 注意：application.yml 已提交（里面没有真实密码），
+# 但如果你以后新建 application-dev.yml 放真实密码，一定要加到这里。

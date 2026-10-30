@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!--
+    ============================================================================
+     DepartmentMapper.xml —— 部门模块的 SQL 都写在这里
+
+     三条铁律（违反任意一条，启动或调用时就会报错）：
+       1. namespace 必须写 Mapper 接口的"全限定类名"，不能写简称；
+       2. 每个标签的 id 必须和接口里的方法名一模一样；
+       3. 文件必须放在 resources/mapper/ 下（application.yml 里配了
+          mybatis.mapper-locations=classpath:mapper/*.xml）。
+    ============================================================================
+-->
+<mapper namespace="com.lab.training.mapper.DepartmentMapper">
+
+    <!--
+        结果映射：告诉 MyBatis "查出来的哪一列，放到对象的哪个属性"。
+        column  = 数据库字段名
+        property = Department 类的属性名
+
+        说明：本项目 application.yml 里已经开了 map-underscore-to-camel-case，
+        理论上不写 resultMap 也能自动映射。这里仍然显式写出来，是为了让你
+        看清楚"数据库字段"和"Java 属性"之间到底是什么关系——以后遇到
+        字段名和属性名完全对不上的情况（比如 dept_name 对应 name），
+        就必须靠这个 resultMap 手动指定。
+    -->
+    <resultMap id="BaseResultMap" type="com.lab.training.entity.Department">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="code" property="code"/>
+        <result column="leader" property="leader"/>
+        <result column="phone" property="phone"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <!--
+        公共字段列表。
+        好处：以后加字段只改这一处，不用满文件找 SELECT。
+        用的时候写 include refid="Base_Column_List"，不要把 * 写死在 SQL 里
+        （SELECT * 会多查用不到的字段，而且表结构一变就可能映射出错）。
+    -->
+    <sql id="Base_Column_List">
+        id, name, code, leader, phone, status, create_time, update_time
+    </sql>
+
+    <!-- ======================================================================
+         已实现：根据主键查询
+         对应接口方法：Department selectById(@Param("id") Long id)
+         ====================================================================== -->
+    <select id="selectById" resultMap="BaseResultMap">
+        SELECT
+        <include refid="Base_Column_List"/>
+        FROM department
+        WHERE id = #{id}
+    </select>
+
+
+    <!-- ======================================================================
+         ↓↓↓↓↓↓↓↓  以下 4 条 SQL 请你补全  ↓↓↓↓↓↓↓↓
+         写之前先确认：id 和接口方法名完全一致，参数名和接口上的 @Param 一致。
+         ====================================================================== -->
+
+    <!--
+        TODO 1：查询全部部门
+        对应接口方法：List<Department> selectAll()
+
+        要求：
+          1. 查询 department 表，字段用 include 复用 Base_Column_List；
+          2. 按 id 升序排列（ORDER BY id）；
+          3. resultMap 写 BaseResultMap。
+
+        参考写法：把上面 selectById 的 WHERE 子句删掉，加上 ORDER BY 即可。
+        预计 SQL 行数：4~5 行。如果你写了 10 行以上，说明写复杂了。
+    -->
+
+    <!--
+        TODO 2：新增部门
+        对应接口方法：int insert(Department department)
+
+        要求：
+          1. 插入 name、code、leader、phone、status 五个字段；
+             create_time / update_time 交给数据库默认值，不要自己 insert；
+          2. 标签需要写 useGeneratedKeys="true" keyProperty="id"，
+             这样插入成功后，新生成的 id 会自动回填到传入的 department 对象里；
+          3. 参数是对象，SQL 里直接写 #{name}、#{code} 这样取值。
+
+        自测方法：调用新增接口后，看一下返回值里的 data.id 有没有值。
+                 没有值 = 你漏了 useGeneratedKeys 或 keyProperty 写错了。
+    -->
+
+    <!--
+        TODO 3：根据主键修改部门
+        对应接口方法：int updateById(Department department)
+
+        要求：
+          1. UPDATE department SET ... WHERE id = #{id}；
+          2. 用动态 SQL 的 if 标签逐个判断字段是否为空，为空就不更新该字段。
+             例如：if 标签里写 test="name != null and name != ''"，然后拼 name = #{name},
+             注意每个 if 片段结尾的逗号问题（最后一个字段不能带逗号），
+             处理办法：把 WHERE 前面的逗号交给 trim 标签，或者让每个 if 都写成
+             "字段 = #{字段}," 然后用 trim 去掉末尾逗号。
+          3. 不要更新 create_time。
+
+        思考题（写在你的实训报告里）：如果前端只想改 status，其他字段传 null，
+        不做 if 判断会发生什么？去数据库里看一眼数据就明白了。
+    -->
+
+    <!--
+        TODO 4：根据主键删除部门
+        对应接口方法：int deleteById(@Param("id") Long id)
+
+        要求：DELETE FROM department WHERE id = #{id}
+        就这一行，先把它写对，再思考：如果 company 表里有外键指向这个部门，
+        直接删会报什么错？（这个坑在阶段二设计关联表时一定会遇到）
+    -->
+
+</mapper>
